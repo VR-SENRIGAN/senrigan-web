@@ -45,7 +45,7 @@ SteppingMotor.prototype = {
           await this.delayMicroseconds(10000);
           this.i2cSlave = i2cSlave;
           // Set default frequence to F_3921Hz
-          await this.frequence(SteppingMotor.F_3921Hz);
+          await this.frequence(this.F_3921Hz);
           console.log("init ok:" + this.i2cSlave);
           resolve();
         },
@@ -65,7 +65,7 @@ SteppingMotor.prototype = {
       if (this.i2cSlave == null) {
         reject("i2cSlave Address does'nt yet open!");
       } else {
-        await this.i2cSlave.write16(SteppingMotor.DirectionSet, _direction * 0x100 + SteppingMotor.Nothing);
+        await this.i2cSlave.write16(this.DirectionSet, _direction + this.Nothing * 0x100);
         await this.delayMicroseconds(4000);
         resolve();
       }
@@ -78,12 +78,12 @@ SteppingMotor.prototype = {
   // _speed: -100~100, when _speed>0, dc motor runs clockwise; when _speed<0, 
   // dc motor runs anticlockwise
   speed: function(motor_id, _speed) {
-    if (motor_id < SteppingMotor.MOTOR1 || motor_id > SteppingMotor.MOTOR2) {
+    if (motor_id < this.MOTOR1 || motor_id > tshi.MOTOR2) {
       console.log("Motor id error! Must be MOTOR1 or MOTOR2");
       return;
     }
 
-    if(motor_id == SteppingMotor.MOTOR1) {
+    if(motor_id == this.MOTOR1) {
       if (_speed >= 0) {
         this._M1_direction = 1; 
         _speed = _speed > 100 ? 100 : _speed;
@@ -112,12 +112,12 @@ SteppingMotor.prototype = {
         reject("i2cSlave Address does'nt yet open!");
       } else {
         // Set the direction
-        if (this._M1_direction == 1 && this._M2_direction == 1) await this.direction(SteppingMotor.BothClockWise);
-        if (this._M1_direction == 1 && this._M2_direction == -1) await this.direction(SteppingMotor.M1CWM2ACW);
-        if (this._M1_direction == -1 && this._M2_direction == 1) await this.direction(SteppingMotor.M1ACWM2CW);
-        if (this._M1_direction == -1 && this._M2_direction == -1) await this.direction(SteppingMotor.BothAntiClockWise);
+        if (this._M1_direction == 1 && this._M2_direction == 1) await this.direction(this.BothClockWise);
+        if (this._M1_direction == 1 && this._M2_direction == -1) await this.direction(this.M1CWM2ACW);
+        if (this._M1_direction == -1 && this._M2_direction == 1) await this.direction(this.M1ACWM2CW);
+        if (this._M1_direction == -1 && this._M2_direction == -1) await this.direction(this.BothAntiClockWise);
         // send command
-        await this.i2cSlave.write16(SteppingMotor.MotorSpeedSet, this._speed1 * 0x100 + this._speed2);
+        await this.i2cSlave.write16(this.MotorSpeedSet, this._speed1 + this._speed2 * 0x100);
         await delayMicroseconds(4000);
         resolve();
       }
@@ -131,10 +131,10 @@ SteppingMotor.prototype = {
     return new Promise(async (resolve, reject) => {
       if (this.i2cSlave == null) {
         reject("i2cSlave Address does'nt yet open!");
-      } else if (_frequence < SteppingMotor.F_31372Hz || _frequence > SteppingMotor.F_30Hz) {
+      } else if (_frequence < this.F_31372Hz || _frequence > this.F_30Hz) {
         reject("frequence error! Must be F_31372Hz, F_3921Hz, F_490Hz, F_122Hz, F_30Hz");
       } else {
-        await this.i2cSlave.write16(SteppingMotor.PWMFrequenceSet, _frequence * 0x100 + SteppingMotor.Nothing);
+        await this.i2cSlave.write16(this.PWMFrequenceSet, _frequence + this.Nothing * 0x100);
         await this.delayMicroseconds(4000);
         resolve();
       }
@@ -144,7 +144,7 @@ SteppingMotor.prototype = {
   // Stop one motor
   // motor_id: MOTOR1, MOTOR2
   stop: function (motor_id) {
-    if (motor_id<SteppingMotor.MOTOR1 || motor_id>SteppingMotor.MOTOR2) {
+    if (motor_id<this.MOTOR1 || motor_id>this.MOTOR2) {
       Serial.println("Motor id error! Must be MOTOR1 or MOTOR2");
       return;
     }
@@ -181,7 +181,7 @@ SteppingMotor.prototype = {
       if (this.i2cSlave == null) {
         reject("i2cSlave Address does'nt yet open!");
       } else {
-        await this.i2cSlave.write16(SteppingMotor.MotorSpeedSet, this._speed1 * 0x100 + this._speed2);
+        await this.i2cSlave.write16(this.MotorSpeedSet, this._speed1 + this._speed2 * 0x100);
         await this.delayMicroseconds(4000);
 
         if (_type == 1) {
