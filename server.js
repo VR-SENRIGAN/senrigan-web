@@ -5,15 +5,12 @@ var fs     = require('fs');
 var server = http.createServer((request, response) => {
   console.log((new Date()) + ' Received request for ' + request.url);
   fs.readFile(__dirname + request.url, 'utf-8', function (err, data) {
-    // エラー発生時
     if (err) {
       response.writeHead(404, {'Content-Type' : 'text/plain'});
       response.write('page not found');
-      // returnを使って、ここで処理を終了させる
       return response.end();
     }
 
-    // 表示させるのはtextじゃなくて、htmlなので、text/htmlにする
     response.writeHead(200, {'Content-Type' : 'text/html'});
     response.write(data);
     response.end();
@@ -29,31 +26,25 @@ wsServer = new WebSocketServer({
   autoAcceptConnections: false
 });
 
-function originIsAllowed(origin) {
-  return true;
-}
-
+var connections = [];
 wsServer.on('request', function(request) {
-  if (!originIsAllowed(request.origin)) {
-    request.reject();
-    console.log((new Date()) + ' Connection from origin ' + request.origin + ' rejected.');
-    return;
-  }
-
   var connection = request.accept('echo-protocol', request.origin);
   console.log((new Date()) + ' Connection accepted.');
+
+  connections.push(connection);
+  console.log('connections.length:' + connections.length);
+
   connection.on('message', function(message) {
     if (message.type === 'utf8') {
       console.log('Received Message: ' + message.utf8Data);
-      connection.sendUTF(message.utf8Data);
-    } else if (message.type === 'binary') {
-      console.log('Received Binary Message of ' + message.binaryData.length + ' bytes');
-      connection.sendBytes(message.binaryData);
-    }
+      connections.forEach((c) => {
+        c.sendUTF(message.utf8Data);
+      });
   });
 
   connection.on('close', function(reasonCode, description) {
     console.log((new Date()) + ' Peer ' + connection.remoteAddress + ' disconnected.');
+    console.log('connections.length:' + connections.length);
   });
 });
 
