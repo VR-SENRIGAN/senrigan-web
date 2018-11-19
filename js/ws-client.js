@@ -1,24 +1,31 @@
-var ws = new WebSocket('ws://localhost:7777/',['echo-protocol','soap', 'xmpp']);
+const SenriganSocket = function(port) {
+  this.port = port;
+  this.ws = null;
+}
 
-ws.onopen = function() {//WS接続確立
-   ws.send('hello');
- };
+SenriganSocket.prototype = {
+  init: function() {
+    ws = new WebSocket('ws://localhost:' + this.port + '/',['echo-protocol','soap', 'xmpp']);
 
-// Log errors
-ws.onerror = function (error) {
-  console.log('WebSocket Error ' + error);
-};
+    ws.onopen = function() {
+     ws.send('hello');
+    };
 
-// Log messages from the server
-ws.onmessage = function (e) {
-  console.log('Server: ' + e.data);
-};
+    ws.onerror = function (error) {
+      console.log('WebSocket Error ' + error);
+  };
 
-ws.onclose = function () {
-  console.log('Server: closed');
-};
+    ws.onmessage = function (e) {
+      console.log('Server: ' + e.data);
+    };
 
-function sendToServer(num) {
+    ws.onclose = function () {
+      console.log('Server: closed');
+    };
+  },
+
+  sendToServer(num) {
    ws.send(num);
+  }
 }
 
