@@ -1,9 +1,6 @@
 const debug = Boolean(navigator.userAgent.match('Macintosh'));
 const elDebug = document.querySelector('#debug');
 
-const senriganSocket = new SenriganSocket(7778);
-senriganSocket.init();
-
 if (!debug) {
   window.addEventListener(
     'deviceorientation',
