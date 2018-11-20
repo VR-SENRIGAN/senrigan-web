@@ -1,4 +1,4 @@
-var WebSocketServer = require('websocket').server;
+var WebSocketServer = require('ws');
 var http = require('http');
 var fs     = require('fs');
 
@@ -21,30 +21,29 @@ server.listen(7777, () => {
   console.log((new Date()) + ' Server is listening on port 7777');
 });
 
-wsServer = new WebSocketServer({
-  httpServer: server,
-  autoAcceptConnections: false
+var mobileSocket, raspberrySocket;
+
+mobileServer = new WebSocketServer.Server({
+  port: 7778
 });
 
-var connections = [];
-wsServer.on('request', function(request) {
-  var connection = request.accept('echo-protocol', request.origin);
-  console.log((new Date()) + ' Connection accepted.');
-
-  connections.push(connection);
-  console.log('connections.length:' + connections.length);
-
-  connection.on('message', function(message) {
-    if (message.type === 'utf8') {
-      console.log('Received Message: ' + message.utf8Data);
-      connections.forEach((c) => {
-        c.sendUTF(message.utf8Data);
-      });
+mobileServer.on('connection', function connection(ws) {
+  console.log('connected from mobile.');
+  mobileSocket = ws;
+  ws.on('message', function incoming(message) {
+    //console.log('received: %s', message);
+    if (raspberrySocket) {
+      raspberrySocket.send(message);
+    }
   });
+});
 
-  connection.on('close', function(reasonCode, description) {
-    console.log((new Date()) + ' Peer ' + connection.remoteAddress + ' disconnected.');
-    console.log('connections.length:' + connections.length);
-  });
+raspberryServer = new WebSocketServer.Server({
+  port: 7779
+});
+
+raspberryServer.on('connection', function connection(ws) {
+  console.log('connected from Raspberrypi.');
+  raspberrySocket = ws;
 });
 
