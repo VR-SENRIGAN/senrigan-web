@@ -4,11 +4,32 @@
       <meta charset="UTF-8"/>
       <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
       <title>VR-SENRIGAN Web</title>
+      <style type="text/css">
+        <!--
+          .video__wrap {
+            display: inline-block;
+            vertical-align: top;
+          }
+          .video__show {
+            width: 320px;
+            height: 240px;
+            border: 1px solid black;
+          }
+        -->
+      </style>
     </head>
   <body>
     <script defer src="js/ws-client.js"></script>
     <script defer src="js/mobile-ws.js"></script>
     <script defer src="js/deviceorientation.js"></script>
     <div id="debug"></div>
+    <div>
+      <div class="video__wrap">
+        <video id="left_video" autoplay class="video__show"></video>
+      </div>
+      <div class="video__wrap">
+        <video id="right_video" autoplay class="video__show"></video>
+      </div>
+    </div>
   </body>
 </html>
