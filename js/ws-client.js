@@ -8,7 +8,7 @@ SenriganSocket.prototype = {
     ws = new WebSocket('ws://localhost:' + this.port + '/',['echo-protocol','soap', 'xmpp']);
 
     ws.onopen = function() {
-     ws.send('hello');
+     ws.send(JSON.stringify({type: 'debug', value: 'connect'}));
     };
 
     ws.onerror = function (error) {
@@ -24,8 +24,8 @@ SenriganSocket.prototype = {
     };
   },
 
-  sendToServer(num) {
-   ws.send(num);
+  sendToServer(json) {
+   ws.send(JSON.stringify(json));
   }
 }
 
