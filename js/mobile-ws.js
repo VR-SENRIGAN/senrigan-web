@@ -23,6 +23,14 @@ RTCSessionDescription = window.RTCSessionDescription
 let pc_config = {"iceServers":[]};
 let peer = new RTCPeerConnection(pc_config);
 
+peer.onaddstream = function(event) {
+  console.log('-- peer.onaddstream()');
+  let stream = event.stream;
+  let leftVideo = document.querySelector('video#left_video');
+  leftVideo.srcObject = stream
+};
+
+
 function setOffer(sessionDescription) {
   peer.setRemoteDescription(sessionDescription).then(function() {
       console.log('setRemoteDescription(offer) succsess in promise');

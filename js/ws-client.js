@@ -6,7 +6,7 @@ const SenriganSocket = function(port) {
 SenriganSocket.prototype = {
   init: function() {
     return new Promise((resolve, reject) => {
-      this.ws = new WebSocket('ws://localhost:' + this.port + '/',['echo-protocol','soap', 'xmpp']);
+      this.ws = new WebSocket('ws://192.168.128.105:' + this.port + '/',['echo-protocol','soap', 'xmpp']);
 
       this.ws.onopen = function() {
         this.send(JSON.stringify({type: 'debug', value: 'connect'}));
