@@ -5,27 +5,31 @@ const SenriganSocket = function(port) {
 
 SenriganSocket.prototype = {
   init: function() {
-    ws = new WebSocket('ws://localhost:' + this.port + '/',['echo-protocol','soap', 'xmpp']);
+    return new Promise((resolve, reject) => {
+      this.ws = new WebSocket('ws://localhost:' + this.port + '/',['echo-protocol','soap', 'xmpp']);
 
-    ws.onopen = function() {
-     ws.send(JSON.stringify({type: 'debug', value: 'connect'}));
-    };
+      this.ws.onopen = function() {
+        this.send(JSON.stringify({type: 'debug', value: 'connect'}));
+        resolve();
+      };
 
-    ws.onerror = function (error) {
-      console.log('WebSocket Error ' + error);
-  };
+      this.ws.onerror = function (error) {
+        console.log('WebSocket Error ' + error);
+        reject
+      };
 
-    ws.onmessage = function (e) {
-      console.log('Server: ' + e.data);
-    };
+      this.ws.onmessage = function (e) {
+        console.log('Server: ' + e.data);
+      };
 
-    ws.onclose = function () {
-      console.log('Server: closed');
-    };
+      this.ws.onclose = function () {
+        console.log('Server: closed');
+      };
+    });
   },
 
   sendToServer(json) {
-   ws.send(JSON.stringify(json));
+   this.ws.send(JSON.stringify(json));
   }
 }
 

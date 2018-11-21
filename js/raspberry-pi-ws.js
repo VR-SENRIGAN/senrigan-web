@@ -1,5 +1,21 @@
 const senriganSocket = new SenriganSocket(7779);
-senriganSocket.init();
+socketConnect(senriganSocket);
+
+async function socketConnect(senriganSocket) {
+  await senriganSocket.init();
+  
+  let onmessage = senriganSocket.ws.onmessage;
+  senriganSocket.ws.onmessage = ((event) => {
+    onmessage(event);
+
+    let message = JSON.parse(event.data);
+    if (message.type === 'answer') {
+      console.log('Received answer ...');
+      let answer = new RTCSessionDescription(message);
+      setAnswer(answer);
+    }
+  });
+}
 
 RTCPeerConnection = window.RTCPeerConnection
 RTCSessionDescription = window.RTCSessionDescription
@@ -21,7 +37,7 @@ function sendSdp(sessionDescription) {
   // textForSendSdp.value = sessionDescription.sdp;
   let message = JSON.stringify(sessionDescription);
   console.log('sending SDP=' + message);
-  senriganSocket.sendToServer(message);
+  senriganSocket.sendToServer(sessionDescription);
 }
 
 peer.createOffer().then(function (sessionDescription) {
@@ -33,3 +49,16 @@ peer.createOffer().then(function (sessionDescription) {
 }).catch(function(err) {
   console.error(err);
 });
+
+function setAnswer(sessionDescription) {
+  if (!peer) {
+    console.error('peerConnection NOT exist!');
+    return;
+  }
+  peer.setRemoteDescription(sessionDescription)
+  .then(function() {
+    console.log('setRemoteDescription(answer) succsess in promise');
+  }).catch(function(err) {
+    console.error('setRemoteDescription(answer) ERROR: ', err);
+  });
+}
