@@ -1,9 +1,6 @@
 const debug = Boolean(navigator.userAgent.match('Macintosh'));
 const elDebug = document.querySelector('#debug');
 
-const senriganSocket = new SenriganSocket(7778);
-senriganSocket.init();
-
 if (!debug) {
   window.addEventListener(
     'deviceorientation',
@@ -24,7 +21,7 @@ if (!debug) {
     setTimeout(() => {
       stack.pop();
       if (stack.length === 0) {
-        sendToServer(alpha);
+        senriganSocket.sendToServer({type: 'orientation', value:alpha});
       }
     }, 200);
   }
@@ -33,8 +30,7 @@ if (!debug) {
     while (true) {
       await new Promise(resolve => setTimeout(resolve, 500));
       var alpha = Math.floor(Math.random() * 360);
-      console.log(200);
-      senriganSocket.sendToServer(alpha);
+      senriganSocket.sendToServer({type: 'orientation', value:alpha});
     }
   }
   dummy();
