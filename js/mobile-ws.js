@@ -9,7 +9,7 @@ async function socketConnect(senriganSocket) {
     onmessage(event);
 
     let message = JSON.parse(event.data);
-    if (message.type === 'offer') {
+    if (message.type === 'leftsdp' &&  message.value.type === 'offer') {
       console.log('Received offer ...');
       let offer = new RTCSessionDescription(message);
       setOffer(offer);
@@ -29,7 +29,6 @@ peer.onaddstream = function(event) {
   let leftVideo = document.querySelector('video#left_video');
   leftVideo.srcObject = stream
 };
-
 
 function setOffer(sessionDescription) {
   peer.setRemoteDescription(sessionDescription).then(function() {

@@ -13,7 +13,7 @@ async function socketConnect(senriganSocket) {
     onmessage(event);
 
     let message = JSON.parse(event.data);
-    if (message.type === 'answer') {
+    if (message.type === 'leftsdp' && message.value.type === 'answer') {
       console.log('Received answer ...');
       let answer = new RTCSessionDescription(message);
       leftPeer.setAnswer(answer);
@@ -51,7 +51,8 @@ SenriganPeer.prototype = {
           console.log(evt.candidate);
         } else {
           console.log('empty ice event');
-          peer.sendSdp(peer.localDescription);
+          let description = JSON.stringify({type: 'leftsdp', value: JSON.parse(peer.localDescription)});
+          peer.sendSdp(description);
         }
       };
 
@@ -78,7 +79,8 @@ SenriganPeer.prototype = {
         return peer.setLocalDescription(sessionDescription);
       }).then(function() {
         console.log('setLocalDescription() succsess in promise');
-        peer.sendSdp(peer.localDescription);
+        let description = JSON.stringify({type: 'leftsdp', value: JSON.parse(peer.localDescription)});
+        peer.sendSdp(description);
       }).catch(function(err) {
         console.error(err);
       });
