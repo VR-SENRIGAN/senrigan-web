@@ -1,7 +1,7 @@
 const senriganSocket = new SenriganSocket(7779);
 const RTCPeerConnection = window.RTCPeerConnection
 const RTCSessionDescription = window.RTCSessionDescription
-let leftPeer;
+let leftPeer, rightPeer;
 
 socketConnect(senriganSocket);
 
@@ -17,6 +17,10 @@ async function socketConnect(senriganSocket) {
       console.log('Received answer ...');
       let answer = new RTCSessionDescription(message.value);
       leftPeer.setAnswer(answer);
+    } else if (message.type === 'rightsdp' && message.value.type === 'answer') {
+      console.log('Received answer ...');
+      let answer = new RTCSessionDescription(message.value);
+      rightPeer.setAnswer(answer);
     }
   });
 }
@@ -24,6 +28,8 @@ async function socketConnect(senriganSocket) {
 function connect() {
   leftPeer = new SenriganPeer('left');
   leftPeer.init();
+  rightPeer = new SenriganPeer('right');
+  rightPeer.init();
 }
 
 const SenriganPeer = function(name) {
@@ -38,12 +44,12 @@ SenriganPeer.prototype = {
       let peer = new RTCPeerConnection(pc_config);
       this.peer = peer;
 
-      let leftStream = document.querySelector('video#left_video').srcObject;
-      if (leftStream) {
-        console.log('Adding left stream...');
-        this.peer.addStream(leftStream);
+      let stream = document.querySelector('video#' + this.name + '_video').srcObject;
+      if (stream) {
+        console.log('Adding ' + this.name + ' stream...');
+        this.peer.addStream(stream);
       } else {
-        console.warn('no left stream, but continue.');
+        console.warn('no ' + this.name + ' stream, but continue.');
       }
 
       this.peer.onicecandidate = function (evt) {
@@ -51,7 +57,7 @@ SenriganPeer.prototype = {
           console.log(evt.candidate);
         } else {
           console.log('empty ice event');
-          let description = {type: 'leftsdp', value: peer.localDescription.toJSON()};
+          let description = {type: this.name + 'sdp', value: peer.localDescription.toJSON()};
           this.sendSdp(description);
         }
       }.bind(this);
@@ -79,7 +85,7 @@ SenriganPeer.prototype = {
         return peer.setLocalDescription(sessionDescription);
       }).then(function() {
         console.log('setLocalDescription() succsess in promise');
-        let description = {type: 'leftsdp', value: peer.localDescription.toJSON()};
+        let description = {type: this.name + 'sdp', value: peer.localDescription.toJSON()};
         this.sendSdp(description);
       }.bind(this)).catch(function(err) {
         console.error(err);

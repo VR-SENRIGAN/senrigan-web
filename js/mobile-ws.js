@@ -1,4 +1,8 @@
 const senriganSocket = new SenriganSocket(7778);
+RTCPeerConnection = window.RTCPeerConnection
+RTCSessionDescription = window.RTCSessionDescription
+let leftPeer, rightPeer;
+
 socketConnect(senriganSocket);
 
 async function socketConnect(senriganSocket) {
@@ -12,56 +16,70 @@ async function socketConnect(senriganSocket) {
     if (message.type === 'leftsdp' &&  message.value.type === 'offer') {
       console.log('Received offer ...');
       let offer = new RTCSessionDescription(message.value);
-      setOffer(offer);
+      leftPeer.setOffer(offer);
+    } else if (message.type === 'rightsdp' &&  message.value.type === 'offer') {
+      console.log('Received offer ...');
+      let offer = new RTCSessionDescription(message.value);
+      rightPeer.setOffer(offer);
     }
   });
 }
 
-RTCPeerConnection = window.RTCPeerConnection
-RTCSessionDescription = window.RTCSessionDescription
+const SenriganPeer = function(name) {
+  this.name = name;
+  this.peer = null;
+}
 
-let pc_config = {"iceServers":[]};
-let peer = new RTCPeerConnection(pc_config);
+SenriganPeer.prototype = {
+  init: function() {
+    let pc_config = {"iceServers":[]};
+    this.peer = new RTCPeerConnection(pc_config);
 
-peer.onaddstream = function(event) {
-  console.log('-- peer.onaddstream()');
-  let stream = event.stream;
-  let leftVideo = document.querySelector('video#left_video');
-  leftVideo.srcObject = stream
-};
+    this.peer.onaddstream = function(event) {
+      console.log('-- peer.onaddstream()');
+      let stream = event.stream;
+      let video = document.querySelector('video#' + this.name + '_video');
+      video.srcObject = stream
+    }.bind(this);
+  },
 
-function setOffer(sessionDescription) {
-  peer.setRemoteDescription(sessionDescription).then(function() {
+  sendSdp: function (sessionDescription) {
+    console.log('---sending sdp ---');
+    let message = JSON.stringify(sessionDescription);
+    console.log('sending SDP=' + message);
+    senriganSocket.sendToServer(sessionDescription);
+  },
+
+  setOffer: function (sessionDescription) {
+    this.peer.setRemoteDescription(sessionDescription).then(function() {
       console.log('setRemoteDescription(offer) succsess in promise');
-      makeAnswer();
-  }).catch(function(err) {
-    console.error('setRemoteDescription(offer) ERROR: ', err);
-  });
-}
+      this.makeAnswer();
+    }.bind(this)).catch(function(err) {
+      console.error('setRemoteDescription(offer) ERROR: ', err);
+    });
+  },
 
-function makeAnswer() {
-  console.log('sending Answer. Creating remote session description...' );
-  if (! peer) {
-    console.error('peerConnection NOT exist!');
-    return;
+  makeAnswer: function() {
+    console.log('sending Answer. Creating remote session description...' );
+    if (! this.peer) {
+      console.error('peerConnection NOT exist!');
+      return;
+    }
+
+    this.peer.createAnswer().then(function (sessionDescription) {
+      console.log('createAnswer() succsess in promise');
+      return this.peer.setLocalDescription(sessionDescription);
+    }.bind(this)).then(function() {
+      console.log('setLocalDescription() succsess in promise');
+      let description = {type: this.name + 'sdp', value: this.peer.localDescription.toJSON()}
+      this.sendSdp(description);
+    }.bind(this)).catch(function(err) {
+      console.error(err);
+    });
   }
-
-  peer.createAnswer()
-  .then(function (sessionDescription) {
-    console.log('createAnswer() succsess in promise');
-    return peer.setLocalDescription(sessionDescription);
-  }).then(function() {
-    console.log('setLocalDescription() succsess in promise');
-    let description = {type: 'leftsdp', value: peer.localDescription.toJSON()}
-    sendSdp(description);
-  }).catch(function(err) {
-    console.error(err);
-  });
 }
 
-function sendSdp(sessionDescription) {
-  console.log('---sending sdp ---');
-  let message = JSON.stringify(sessionDescription);
-  console.log('sending SDP=' + message);
-  senriganSocket.sendToServer(sessionDescription);
-}
+leftPeer = new SenriganPeer('left');
+leftPeer.init();
+rightPeer = new SenriganPeer('right');
+rightPeer.init();
