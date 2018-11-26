@@ -15,7 +15,7 @@ async function socketConnect(senriganSocket) {
     let message = JSON.parse(event.data);
     if (message.type === 'leftsdp' && message.value.type === 'answer') {
       console.log('Received answer ...');
-      let answer = new RTCSessionDescription(message);
+      let answer = new RTCSessionDescription(message.value);
       leftPeer.setAnswer(answer);
     }
   });
@@ -51,10 +51,10 @@ SenriganPeer.prototype = {
           console.log(evt.candidate);
         } else {
           console.log('empty ice event');
-          let description = JSON.stringify({type: 'leftsdp', value: JSON.parse(peer.localDescription)});
-          peer.sendSdp(description);
+          let description = {type: 'leftsdp', value: peer.localDescription.toJSON()};
+          this.sendSdp(description);
         }
-      };
+      }.bind(this);
 
       this.peer.onnegotiationneeded = function(evt) { console.log('-- onnegotiationneeded() ---'); };
       this.peer.onicecandidateerror = function (evt) { console.error('ICE candidate ERROR:', evt); };
@@ -79,9 +79,9 @@ SenriganPeer.prototype = {
         return peer.setLocalDescription(sessionDescription);
       }).then(function() {
         console.log('setLocalDescription() succsess in promise');
-        let description = JSON.stringify({type: 'leftsdp', value: JSON.parse(peer.localDescription)});
-        peer.sendSdp(description);
-      }).catch(function(err) {
+        let description = {type: 'leftsdp', value: peer.localDescription.toJSON()};
+        this.sendSdp(description);
+      }.bind(this)).catch(function(err) {
         console.error(err);
       });
 
