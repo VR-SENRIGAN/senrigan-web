@@ -38,7 +38,7 @@ mobileServer.on('connection', function connection(ws) {
   });
 
   ws.on('close', function close() {
-    console.log('mobileSocket disconnectedle');
+    console.log('mobileSocket disconnectede');
     mobileSocket = null;
   });
 });
@@ -58,7 +58,7 @@ raspberryServer.on('connection', function connection(ws) {
   });
 
   ws.on('close', function close() {
-    console.log('raspberrySocket disconnectedle');
+    console.log('raspberrySocket disconnectede');
     raspberrySocket = null;
   });
 });
