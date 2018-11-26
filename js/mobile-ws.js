@@ -9,9 +9,9 @@ async function socketConnect(senriganSocket) {
     onmessage(event);
 
     let message = JSON.parse(event.data);
-    if (message.type === 'offer') {
+    if (message.type === 'leftsdp' &&  message.value.type === 'offer') {
       console.log('Received offer ...');
-      let offer = new RTCSessionDescription(message);
+      let offer = new RTCSessionDescription(message.value);
       setOffer(offer);
     }
   });
@@ -29,7 +29,6 @@ peer.onaddstream = function(event) {
   let leftVideo = document.querySelector('video#left_video');
   leftVideo.srcObject = stream
 };
-
 
 function setOffer(sessionDescription) {
   peer.setRemoteDescription(sessionDescription).then(function() {
@@ -53,7 +52,8 @@ function makeAnswer() {
     return peer.setLocalDescription(sessionDescription);
   }).then(function() {
     console.log('setLocalDescription() succsess in promise');
-    sendSdp(peer.localDescription);
+    let description = {type: 'leftsdp', value: peer.localDescription.toJSON()}
+    sendSdp(description);
   }).catch(function(err) {
     console.error(err);
   });

@@ -36,6 +36,11 @@ mobileServer.on('connection', function connection(ws) {
       raspberrySocket.send(message);
     }
   });
+
+  ws.on('close', function close() {
+    console.log('mobileSocket disconnectede');
+    mobileSocket = null;
+  });
 });
 
 raspberryServer = new WebSocketServer.Server({
@@ -50,6 +55,11 @@ raspberryServer.on('connection', function connection(ws) {
     if (mobileSocket) {
       mobileSocket.send(message);
     }
+  });
+
+  ws.on('close', function close() {
+    console.log('raspberrySocket disconnectede');
+    raspberrySocket = null;
   });
 });
 
