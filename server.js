@@ -1,8 +1,13 @@
 var WebSocketServer = require('ws');
-var http = require('http');
+var https = require('https');
 var fs     = require('fs');
 
-var server = http.createServer((request, response) => {
+const options = {
+  key: fs.readFileSync(__dirname +  '/server.key'),
+  cert: fs.readFileSync(__dirname + '/server.crt')
+};
+
+var server = https.createServer(options, (request, response) => {
   console.log((new Date()) + ' Received request for ' + request.url);
   fs.readFile(__dirname + request.url, 'utf-8', function (err, data) {
     if (err) {
@@ -23,8 +28,15 @@ server.listen(7777, () => {
 
 var mobileSocket, raspberrySocket;
 
+let mobileHttpsServer = https.createServer(options, (request, response) => {
+    //noop
+});
+mobileHttpsServer.listen(7778, () => {
+  console.log((new Date()) + ' Server is listening on port 7778');
+});
+
 mobileServer = new WebSocketServer.Server({
-  port: 7778
+  server: mobileHttpsServer
 });
 
 mobileServer.on('connection', function connection(ws) {
@@ -43,8 +55,15 @@ mobileServer.on('connection', function connection(ws) {
   });
 });
 
+let raspberryHttpsServer = https.createServer(options, (request, response) => {
+    //noop
+});
+raspberryHttpsServer.listen(7779, () => {
+  console.log((new Date()) + ' Server is listening on port 7778');
+});
+
 raspberryServer = new WebSocketServer.Server({
-  port: 7779
+  server: raspberryHttpsServer
 });
 
 raspberryServer.on('connection', function connection(ws) {
