@@ -45,7 +45,7 @@ SteppingMotor.prototype = {
           await this.delayMicroseconds(10000);
           this.i2cSlave = i2cSlave;
           // Set default frequence to F_3921Hz
-          await this.frequence(this.F_3921Hz);
+          await this.frequence(this.F_30Hz);
           console.log("init ok:" + this.i2cSlave);
           resolve();
         },
@@ -66,7 +66,7 @@ SteppingMotor.prototype = {
         reject("i2cSlave Address does'nt yet open!");
       } else {
         await this.i2cSlave.write16(this.DirectionSet, _direction + this.Nothing * 0x100);
-        await this.delayMicroseconds(4000);
+        // await this.delayMicroseconds(4000);
         resolve();
       }
     });

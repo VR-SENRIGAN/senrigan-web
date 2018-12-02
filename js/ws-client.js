@@ -19,7 +19,7 @@ SenriganSocket.prototype = {
       };
 
       this.ws.onmessage = function (e) {
-        log('Server: ' + e.data);
+        // log('Server: ' + e.data);
       };
 
       this.ws.onclose = function () {
