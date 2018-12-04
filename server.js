@@ -70,7 +70,7 @@ raspberryServer.on('connection', function connection(ws) {
   console.log('connected from Raspberrypi.');
   raspberrySocket = ws;
   ws.on('message', function incoming(message) {
-    //console.log('received: %s', message);
+    console.log('received: %s', message);
     if (mobileSocket) {
       mobileSocket.send(message);
     }
