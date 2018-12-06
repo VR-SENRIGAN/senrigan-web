@@ -49,7 +49,13 @@ SenriganPeer.prototype = {
       let stream = document.querySelector('video#' + this.name + '_video').srcObject;
       if (stream) {
         console.log('Adding ' + this.name + ' stream...');
-        this.peer.addStream(stream);
+        if (this.name === 'left' && audio) {
+          console.log('left ok')
+          stream.getTracks().forEach(track => this.peer.addTrack(track, stream));
+        } else {
+          console.log('right ok')
+          this.peer.addStream(stream);
+        }
       } else {
         console.warn('no ' + this.name + ' stream, but continue.');
       }
