@@ -7,7 +7,7 @@ socketConnect(senriganSocket);
 
 async function socketConnect(senriganSocket) {
   await senriganSocket.init();
-  
+
   let onmessage = senriganSocket.ws.onmessage;
   senriganSocket.ws.onmessage = ((event) => {
     onmessage(event);
@@ -21,6 +21,8 @@ async function socketConnect(senriganSocket) {
       console.log('Received answer ...');
       let answer = new RTCSessionDescription(message.value);
       rightPeer.setAnswer(answer);
+    } else if (message.type === 'request' && message.value === 'video_start') {
+      connect();
     }
   });
 }
