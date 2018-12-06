@@ -9,9 +9,6 @@ if (true) {
   function deviceOrientationHandler(event) {
     const rawAlpha = parseInt(event.alpha);
 
-    let html = 'z値：' + rawAlpha;
-    elDebug.innerHTML = html;
-
     if (stack.length != 0) {
       return;
     }
