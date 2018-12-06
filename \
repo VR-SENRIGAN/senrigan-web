@@ -86,7 +86,7 @@ async function videoRequest() {
   console.log('---video request start---');
 
   await socketConnect(senriganSocket);
-  senriganSocket.sendToServer({type: 'request', value: 'video_start'});
+  senriganSocket.sendToServer(JSON.stringify({type: 'request', value: 'video_start'}));
 
   console.log('---video requested---');
 }

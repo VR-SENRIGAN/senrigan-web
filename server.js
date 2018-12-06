@@ -43,7 +43,7 @@ mobileServer.on('connection', function connection(ws) {
   console.log('connected from mobile.');
   mobileSocket = ws;
   ws.on('message', function incoming(message) {
-    //console.log('received: %s', message);
+    console.log('received: %s', message);
     if (raspberrySocket) {
       raspberrySocket.send(message);
     }
