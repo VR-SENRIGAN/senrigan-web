@@ -57,13 +57,9 @@ async function setVideoSource(video, selector, name) {
     }
 
     function gotStream(stream) {
-      window.stream = stream; // make stream available to console
-      videoElement.srcObject = stream;
-      return navigator.mediaDevices.enumerateDevices();
-    }
-
-    function gotStream2(stream) {
-      stream.addTrack(audio.getTracks()[0]);
+      if (this == 'left') {
+        stream.addTrack(audio.getTracks()[0]);
+      }
       window.stream = stream; // make stream available to console
       videoElement.srcObject = stream;
       return navigator.mediaDevices.enumerateDevices();
@@ -75,11 +71,7 @@ async function setVideoSource(video, selector, name) {
         video: {deviceId: videoSource ? {exact: videoSource} : undefined}
       };
 
-      if (name === 'left') {
-        navigator.mediaDevices.getUserMedia(constraints).then(gotStream2);
-      } else {
-        navigator.mediaDevices.getUserMedia(constraints).then(gotStream);
-      }
+      navigator.mediaDevices.getUserMedia(constraints).then(gotStream.bind(name));
     }
   });
 }
