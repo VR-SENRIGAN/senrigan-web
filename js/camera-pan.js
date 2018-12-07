@@ -54,7 +54,8 @@ async function changeAngle() {
 
   console.log(motorStack);
 
-  if (deviceAngle === currentAngle) {
+  var diff = Math.abs(deviceAngle - currentAngle);
+  if (diff > 100 || diff <= 1) {
     return;
   } else {
     await motor.stepperRun(angleValue(deviceAngle), 1);
