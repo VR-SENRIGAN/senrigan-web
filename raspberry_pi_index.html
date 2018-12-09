@@ -44,7 +44,9 @@
     <script type"text/javascript">
       window.addEventListener('load', function() {
         setAudioSource('select#audio');
-        setVideoSource('video#left_video', 'select#left_camera', 'left');
+        const left_video = new VideoSource('video#left_video', 'select#left_camera', 'left');
+        left_video.init();
+        left_video.start();
         setVideoSource('video#right_video', 'select#right_camera', 'right');
       });
     </script>

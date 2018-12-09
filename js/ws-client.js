@@ -27,6 +27,14 @@ SenriganSocket.prototype = {
       };
     });
   },
+  start: function() {
+    let videoSource = videoSelect.value;
+    let constraints = {
+      video: {deviceId: videoSource ? {exact: videoSource} : undefined}
+    };
+
+    navigator.mediaDevices.getUserMedia(constraints).then(gotStream.bind(name));
+  }
 
   sendToServer(json) {
    this.ws.send(JSON.stringify(json));
