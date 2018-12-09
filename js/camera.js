@@ -33,45 +33,48 @@ async function setAudioSource(selector) {
   }
 };
 
-async function setVideoSource(video, selector, name) {
-  return new Promise((resolve) => {
-    const videoElement = document.querySelector(video);
-    const videoSelect = document.querySelector(selector);
+const VideoSource = function(videoSelector, pulldownSelector, name) {
+  this.videoElement = document.querySelector(videoSelector);
+  this.videoSelect = document.querySelector();
+  this.videoSelector = videoSelector;
+  this.pulldownSelector = pulldownSelector;
+  this.name = name;
+}
 
-    navigator.mediaDevices.enumerateDevices().then(gotDevices); 
+VideoSource.prototype = {
+  init: function() {
+    return new Promise((resolve) => {
+      navigator.mediaDevices.enumerateDevices().then(getDevices);
 
-    videoSelect.onchange = start;
+      videoSelect.onchange = start;
+    }
+  },
 
-    start();
-
-    function gotDevices(deviceInfos) {
-      for (let i = 0; i !== deviceInfos.length; ++i) {
-        const deviceInfo = deviceInfos[i];
-        const option = document.createElement('option');
-        option.value = deviceInfo.deviceId;
-        if (deviceInfo.kind === 'videoinput') {
-          option.text = deviceInfo.label || `camera ${videoSelect.length + 1}`;
-          videoSelect.appendChild(option);
-        }
+  getDevices: function(deviceInfos) {
+    deviceInfos.foreach((deviceInfo) => {
+      // const deviceInfo = deviceInfos[i];
+      const option = document.createElement('option');
+      option.value = deviceInfo.deviceId;
+      if (deviceInfo.kind === 'videoinput') {
+        option.text = deviceInfo.label || `camera ${videoSelect.length + 1}`;
+        videoSelect.appendChild(option);
       }
     }
-
-    function gotStream(stream) {
-      if (this == 'left') {
-        stream.addTrack(audio.getTracks()[0]);
-      }
-      window.stream = stream; // make stream available to console
-      videoElement.srcObject = stream;
-      return navigator.mediaDevices.enumerateDevices();
+  },
+  getStream: function (stream) {
+    if (this == 'left') {
+      stream.addTrack(audio.getTracks()[0]);
     }
+    window.stream = stream; // make stream available to console
+    videoElement.srcObject = stream;
+    return navigator.mediaDevices.enumerateDevices();
+  },
+  start: start() {
+    let videoSource = videoSelect.value;
+    let constraints = {
+      video: {deviceId: videoSource ? {exact: videoSource} : undefined}
+    };
 
-    function start() {
-      let videoSource = videoSelect.value;
-      let constraints = {
-        video: {deviceId: videoSource ? {exact: videoSource} : undefined}
-      };
-
-      navigator.mediaDevices.getUserMedia(constraints).then(gotStream.bind(name));
-    }
-  });
+    navigator.mediaDevices.getUserMedia(constraints).then(gotStream.bind(name));
+  }
 }
