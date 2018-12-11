@@ -43,9 +43,8 @@
     <script src="js/camera.js"></script>
     <script type"text/javascript">
       window.addEventListener('load', function() {
-        setAudioSource('select#audio');
-        setVideoSource('video#left_video', 'select#left_camera', 'left');
-        setVideoSource('video#right_video', 'select#right_camera', 'right');
+        setVideoSource('video#left_video', 'select#left_camera');
+        setVideoSource('video#right_video', 'select#right_camera');
       });
     </script>
     <h1>VR-SENRIGAN WEB</h1>
@@ -65,11 +64,6 @@
           <select id="right_camera">
           </select>
         </div>
-      </div>
-
-      <div>
-        <select id="audio">
-        </select>
       </div>
 
       <div>
